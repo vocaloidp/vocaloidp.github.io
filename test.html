@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ボカロ</title>
+    <title>Upload and Display Multiple Videos with Thumbnails</title>
 </head>
 <body>
-    <h1>ボカロをアップロード</h1>
-    <h3>ビデオをアップしてください</h3>
+    <h1>Upload and Display MP4 Videos with Thumbnails</h1>
     <input type="file" id="fileInput" accept="video/mp4">
-    <b3>サムネルをアップして抱ください</b3>
+    <br><br>
     <input type="file" id="thumbnailInput" accept="image/*">
     <br><br>
     <input type="text" id="titleInput" placeholder="Title">
@@ -84,18 +83,15 @@
             thumbnailElement.src = videoPost.thumbnailURL;
             thumbnailElement.width = 640;
             thumbnailElement.height = 360;
-
-            const descriptionElement = document.createElement('p');
-            descriptionElement.textContent = videoPost.description;
-
-            const startButton = document.createElement('button');
-            startButton.textContent = 'Start';
-            startButton.onclick = function() {
+            thumbnailElement.style.cursor = 'pointer';
+            thumbnailElement.onclick = function() {
                 thumbnailElement.style.display = 'none';
-                startButton.style.display = 'none';
                 videoPlayer.style.display = 'block';
                 videoPlayer.play();
             };
+
+            const descriptionElement = document.createElement('p');
+            descriptionElement.textContent = videoPost.description;
 
             const deleteButton = document.createElement('button');
             deleteButton.textContent = 'Delete';
@@ -114,7 +110,6 @@
             postContainer.appendChild(titleElement);
             postContainer.appendChild(thumbnailElement);
             postContainer.appendChild(descriptionElement);
-            postContainer.appendChild(startButton);
             postContainer.appendChild(videoPlayer);
             postContainer.appendChild(deleteButton);
 
