@@ -17,6 +17,9 @@
     <br><br>
     <button onclick="addVideo()">Upload and Add Video</button>
     <br><br>
+    <input type="text" id="searchInput" placeholder="Search">
+    <button onclick="searchVideos()">Search</button>
+    <br><br>
     <div id="videoContainer"></div>
 
     <script>
@@ -75,6 +78,7 @@
 
         function displayVideo(videoPost, container) {
             const postContainer = document.createElement('div');
+            postContainer.className = 'video-post';
 
             const titleElement = document.createElement('h3');
             titleElement.textContent = videoPost.title;
@@ -127,6 +131,20 @@
             document.getElementById('thumbnailInput').value = '';
             document.getElementById('titleInput').value = '';
             document.getElementById('descriptionInput').value = '';
+        }
+
+        function searchVideos() {
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            const videoContainer = document.getElementById('videoContainer');
+            videoContainer.innerHTML = '';
+
+            const videos = JSON.parse(localStorage.getItem('videos')) || [];
+            const filteredVideos = videos.filter(videoPost => {
+                return videoPost.title.toLowerCase().includes(searchInput) ||
+                       videoPost.description.toLowerCase().includes(searchInput);
+            });
+
+            filteredVideos.forEach(videoPost => displayVideo(videoPost, videoContainer));
         }
     </script>
 </body>
