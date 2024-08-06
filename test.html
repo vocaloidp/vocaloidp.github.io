@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload and Display Multiple Videos</title>
+    <title>Upload and Display Multiple Videos with Thumbnails</title>
 </head>
 <body>
-    <h1>Upload and Display MP4 Videos</h1>
+    <h1>Upload and Display MP4 Videos with Thumbnails</h1>
     <input type="file" id="fileInput" accept="video/mp4">
+    <br><br>
+    <input type="file" id="thumbnailInput" accept="image/*">
     <br><br>
     <input type="text" id="titleInput" placeholder="Title">
     <br><br>
@@ -23,18 +25,21 @@
         });
 
         function addVideo() {
-            const input = document.getElementById('fileInput');
+            const fileInput = document.getElementById('fileInput');
+            const thumbnailInput = document.getElementById('thumbnailInput');
             const titleInput = document.getElementById('titleInput');
             const descriptionInput = document.getElementById('descriptionInput');
             const videoContainer = document.getElementById('videoContainer');
 
-            if (input.files.length === 0) {
-                alert('Please select a file.');
+            if (fileInput.files.length === 0 || thumbnailInput.files.length === 0) {
+                alert('Please select a video file and a thumbnail image.');
                 return;
             }
 
-            const file = input.files[0];
-            const url = URL.createObjectURL(file);
+            const videoFile = fileInput.files[0];
+            const thumbnailFile = thumbnailInput.files[0];
+            const videoURL = URL.createObjectURL(videoFile);
+            const thumbnailURL = URL.createObjectURL(thumbnailFile);
             const title = titleInput.value;
             const description = descriptionInput.value;
 
@@ -47,7 +52,8 @@
                 id: new Date().getTime(),
                 title: title,
                 description: description,
-                url: url
+                videoURL: videoURL,
+                thumbnailURL: thumbnailURL
             };
 
             saveVideo(videoPost);
@@ -68,17 +74,27 @@
         }
 
         function displayVideo(videoPost, container) {
-            const videoPlayer = document.createElement('video');
-            videoPlayer.width = 640;
-            videoPlayer.height = 360;
-            videoPlayer.controls = true;
-            videoPlayer.src = videoPost.url;
+            const postContainer = document.createElement('div');
 
             const titleElement = document.createElement('h3');
             titleElement.textContent = videoPost.title;
 
+            const thumbnailElement = document.createElement('img');
+            thumbnailElement.src = videoPost.thumbnailURL;
+            thumbnailElement.width = 640;
+            thumbnailElement.height = 360;
+
             const descriptionElement = document.createElement('p');
             descriptionElement.textContent = videoPost.description;
+
+            const startButton = document.createElement('button');
+            startButton.textContent = 'Start';
+            startButton.onclick = function() {
+                thumbnailElement.style.display = 'none';
+                startButton.style.display = 'none';
+                videoPlayer.style.display = 'block';
+                videoPlayer.play();
+            };
 
             const deleteButton = document.createElement('button');
             deleteButton.textContent = 'Delete';
@@ -87,10 +103,18 @@
                 container.removeChild(postContainer);
             };
 
-            const postContainer = document.createElement('div');
+            const videoPlayer = document.createElement('video');
+            videoPlayer.width = 640;
+            videoPlayer.height = 360;
+            videoPlayer.controls = true;
+            videoPlayer.src = videoPost.videoURL;
+            videoPlayer.style.display = 'none';
+
             postContainer.appendChild(titleElement);
-            postContainer.appendChild(videoPlayer);
+            postContainer.appendChild(thumbnailElement);
             postContainer.appendChild(descriptionElement);
+            postContainer.appendChild(startButton);
+            postContainer.appendChild(videoPlayer);
             postContainer.appendChild(deleteButton);
 
             container.insertBefore(postContainer, container.firstChild);
@@ -104,6 +128,7 @@
 
         function clearInputs() {
             document.getElementById('fileInput').value = '';
+            document.getElementById('thumbnailInput').value = '';
             document.getElementById('titleInput').value = '';
             document.getElementById('descriptionInput').value = '';
         }
