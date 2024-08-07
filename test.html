@@ -3,149 +3,217 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload and Display Multiple Videos with Thumbnails</title>
+    <title>ボカロP</title>
+    <link rel="shortcut icon" type="image/x-icon" href="https://github.com/vocaloidp/vocaloidp.github.io/blob/main/Vocaloid.png?raw=true" />
+<style>
+    body {
+        /*white-space: pre-wrap;*/
+
+    }
+    .uploadButton {
+        visibility:hidden;
+    }
+    #thumbUploadImage, #vidUploadImage {
+        width: 70px;
+        height: 70px;
+    }
+    #thumbUploadImage, #vidUploadImage:hover {
+        cursor: pointer;
+    }
+    #titleInput {
+        border-width: 10px;
+        width: 80%;
+        height: 30px;
+        left: 0px;
+    }
+    #descriptionInput {
+        width: 50%;
+        height: 100%;
+        resize: none;
+    }
+    #searchBar {
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        width: 100%;
+        height: 50px;
+        background-color: grey;
+    }
+    #searchInput, #searchButton{
+        position: fixed;
+        top: 0px;
+    }
+    #searchInput  {
+        left: 0px;
+        width: 80%;
+        height: 30px;
+    }
+    #searchButton {
+        right: 0px;
+        width: 20%;
+        height: 30px;
+    }
+</style>
 </head>
 <body>
-    <h1>Upload and Display MP4 Videos with Thumbnails</h1>
-    <input type="file" id="fileInput" accept="video/mp4">
-    <br><br>
-    <input type="file" id="thumbnailInput" accept="image/*">
-    <br><br>
-    <input type="text" id="titleInput" placeholder="Title">
-    <br><br>
-    <textarea id="descriptionInput" placeholder="Description"></textarea>
-    <br><br>
-    <button onclick="addVideo()">Upload and Add Video</button>
-    <br><br>
-    <input type="text" id="searchInput" placeholder="Search">
-    <button onclick="searchVideos()">Search</button>
-    <br><br>
-    <div id="videoContainer"></div>
+<br><br><h1>ボカロの曲をアップロードしよう！</h1>
+<h2>サムネル/動画</h2>
+<label for="files" class="btn"><img id="thumbUploadImage" src="https://th.bing.com/th/id/R.763ac784face5729e9a5274627676d3e?rik=V9UoqLQpq7HLKw&riu=http%3a%2f%2fwww.pngall.com%2fwp-content%2fuploads%2f2%2fUpload-PNG.png&ehk=p9OH7uKYdCDqtmw7B%2f3GbgBjKdDyCUCllqAD6Q5nCxU%3d&risl=&pid=ImgRaw&r=0&adlt=strict"></label><label for="filez" class="btn2"><img id="vidUploadImage" src="https://cdn-icons-png.flaticon.com/512/8314/8314810.png"></label>
+<input type="file" id="files" class="uploadButton" id="thumbnailInput" accept="image/*">
+<div id="thumbPreview"></div>
+<input type="file" id="filez" id="fileInput" style="visibility:hidden;" accept="video/mp4">
+<div id="videoPreview"></div>
+<h2>タイトル</h2>
+<input type="text" id="titleInput" placeholder="タイトル">
+<h2>内容</h2>
+<textarea id="descriptionInput" placeholder="ここに書いてください"></textarea>
+<br><button onclick="addVideo()">投稿</button>
+<div id="searchBar">
+<br><input type="text" id="searchInput" placeholder="検索">
+<br><button id="searchButton" onclick="searchVideos()">検索する</button>
+</div>
+<br><div id="videoContainer"></div>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        loadVideos();
+    });
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            loadVideos();
+    document.getElementById('files').addEventListener('change', function(event) {
+        const thumbPreview = document.getElementById('thumbPreview');
+        thumbPreview.innerHTML = '';
+        if (event.target.files.length > 0) {
+            const file = event.target.files[0];
+            const imageUrl = URL.createObjectURL(file);
+            const img = document.createElement('img');
+            img.src = imageUrl;
+            img.width = 70;
+            img.height = 70;
+            thumbPreview.appendChild(img);
+        }
+    });
+
+    document.getElementById('filez').addEventListener('change', function(event) {
+        const videoPreview = document.getElementById('videoPreview');
+        videoPreview.innerHTML = '';
+        if (event.target.files.length > 0) {
+            const file = event.target.files[0];
+            const videoUrl = URL.createObjectURL(file);
+            const video = document.createElement('video');
+            video.src = videoUrl;
+            video.width = 320;
+            video.height = 240;
+            video.controls = true;
+            videoPreview.appendChild(video);
+        }
+    });
+
+    function addVideo() {
+        const fileInput = document.getElementById('fileInput');
+        const thumbnailInput = document.getElementById('thumbnailInput');
+        const titleInput = document.getElementById('titleInput');
+        const descriptionInput = document.getElementById('descriptionInput');
+        const videoContainer = document.getElementById('videoContainer');
+        if (fileInput.files.length === 0 || thumbnailInput.files.length === 0) {
+            alert('Please select a video file and a thumbnail image.');
+            return;
+        }
+        const videoFile = fileInput.files[0];
+        const thumbnailFile = thumbnailInput.files[0];
+        const videoURL = URL.createObjectURL(videoFile);
+        const thumbnailURL = URL.createObjectURL(thumbnailFile);
+        const title = titleInput.value;
+        const description = descriptionInput.value;
+        if (!title || !description) {
+            alert('Please provide a title and description.');
+            return;
+        }
+        const videoPost = {
+            id: new Date().getTime(),
+            title: title,
+            description: description,
+            videoURL: videoURL,
+            thumbnailURL: thumbnailURL
+        };
+        saveVideo(videoPost);
+        displayVideo(videoPost, videoContainer);
+        clearInputs();
+    }
+
+    function saveVideo(videoPost) {
+        const videos = JSON.parse(localStorage.getItem('videos')) || [];
+        videos.unshift(videoPost);
+        localStorage.setItem('videos', JSON.stringify(videos));
+    }
+
+    function loadVideos() {
+        const videos = JSON.parse(localStorage.getItem('videos')) || [];
+        const videoContainer = document.getElementById('videoContainer');
+        videos.forEach(videoPost => displayVideo(videoPost, videoContainer));
+    }
+
+    function displayVideo(videoPost, container) {
+        const postContainer = document.createElement('div');
+        postContainer.className = 'video-post';
+        const titleElement = document.createElement('h3');
+        titleElement.textContent = videoPost.title;
+        const thumbnailElement = document.createElement('img');
+        thumbnailElement.src = videoPost.thumbnailURL;
+        thumbnailElement.width = 640;
+        thumbnailElement.height = 360;
+        thumbnailElement.style.cursor = 'pointer';
+        thumbnailElement.onclick = function() {
+            thumbnailElement.style.display = 'none';
+            videoPlayer.style.display = 'block';
+            videoPlayer.play();
+        };
+        const descriptionElement = document.createElement('p');
+        descriptionElement.textContent = videoPost.description;
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.onclick = function() {
+            deleteVideo(videoPost.id);
+            container.removeChild(postContainer);
+        };
+        const videoPlayer = document.createElement('video');
+        videoPlayer.width = 640;
+        videoPlayer.height = 360;
+        videoPlayer.controls = true;
+        videoPlayer.src = videoPost.videoURL;
+        videoPlayer.style.display = 'none';
+        postContainer.appendChild(titleElement);
+        postContainer.appendChild(thumbnailElement);
+        postContainer.appendChild(descriptionElement);
+        postContainer.appendChild(videoPlayer);
+        postContainer.appendChild(deleteButton);
+        container.insertBefore(postContainer, container.firstChild);
+    }
+
+    function deleteVideo(id) {
+        const videos = JSON.parse(localStorage.getItem('videos')) || [];
+        const updatedVideos = videos.filter(video => video.id !== id);
+        localStorage.setItem('videos', JSON.stringify(updatedVideos));
+    }
+
+    function clearInputs() {
+        document.getElementById('fileInput').value = '';
+        document.getElementById('thumbnailInput').value = '';
+        document.getElementById('titleInput').value = '';
+        document.getElementById('descriptionInput').value = '';
+        document.getElementById('thumbPreview').innerHTML = '';
+        document.getElementById('videoPreview').innerHTML = '';
+    }
+
+    function searchVideos() {
+        const searchInput = document.getElementById('searchInput').value.toLowerCase();
+        const videoContainer = document.getElementById('videoContainer');
+        videoContainer.innerHTML = '';
+        const videos = JSON.parse(localStorage.getItem('videos')) || [];
+        const filteredVideos = videos.filter(videoPost => {
+            return videoPost.title.toLowerCase().includes(searchInput) ||
+                   videoPost.description.toLowerCase().includes(searchInput);
         });
-
-        function addVideo() {
-            const fileInput = document.getElementById('fileInput');
-            const thumbnailInput = document.getElementById('thumbnailInput');
-            const titleInput = document.getElementById('titleInput');
-            const descriptionInput = document.getElementById('descriptionInput');
-            const videoContainer = document.getElementById('videoContainer');
-
-            if (fileInput.files.length === 0 || thumbnailInput.files.length === 0) {
-                alert('Please select a video file and a thumbnail image.');
-                return;
-            }
-
-            const videoFile = fileInput.files[0];
-            const thumbnailFile = thumbnailInput.files[0];
-            const videoURL = URL.createObjectURL(videoFile);
-            const thumbnailURL = URL.createObjectURL(thumbnailFile);
-            const title = titleInput.value;
-            const description = descriptionInput.value;
-
-            if (!title || !description) {
-                alert('Please provide a title and description.');
-                return;
-            }
-
-            const videoPost = {
-                id: new Date().getTime(),
-                title: title,
-                description: description,
-                videoURL: videoURL,
-                thumbnailURL: thumbnailURL
-            };
-
-            saveVideo(videoPost);
-            displayVideo(videoPost, videoContainer);
-            clearInputs();
-        }
-
-        function saveVideo(videoPost) {
-            const videos = JSON.parse(localStorage.getItem('videos')) || [];
-            videos.unshift(videoPost);
-            localStorage.setItem('videos', JSON.stringify(videos));
-        }
-
-        function loadVideos() {
-            const videos = JSON.parse(localStorage.getItem('videos')) || [];
-            const videoContainer = document.getElementById('videoContainer');
-            videos.forEach(videoPost => displayVideo(videoPost, videoContainer));
-        }
-
-        function displayVideo(videoPost, container) {
-            const postContainer = document.createElement('div');
-            postContainer.className = 'video-post';
-
-            const titleElement = document.createElement('h3');
-            titleElement.textContent = videoPost.title;
-
-            const thumbnailElement = document.createElement('img');
-            thumbnailElement.src = videoPost.thumbnailURL;
-            thumbnailElement.width = 640;
-            thumbnailElement.height = 360;
-            thumbnailElement.style.cursor = 'pointer';
-            thumbnailElement.onclick = function() {
-                thumbnailElement.style.display = 'none';
-                videoPlayer.style.display = 'block';
-                videoPlayer.play();
-            };
-
-            const descriptionElement = document.createElement('p');
-            descriptionElement.textContent = videoPost.description;
-
-            const deleteButton = document.createElement('button');
-            deleteButton.textContent = 'Delete';
-            deleteButton.onclick = function() {
-                deleteVideo(videoPost.id);
-                container.removeChild(postContainer);
-            };
-
-            const videoPlayer = document.createElement('video');
-            videoPlayer.width = 640;
-            videoPlayer.height = 360;
-            videoPlayer.controls = true;
-            videoPlayer.src = videoPost.videoURL;
-            videoPlayer.style.display = 'none';
-
-            postContainer.appendChild(titleElement);
-            postContainer.appendChild(thumbnailElement);
-            postContainer.appendChild(descriptionElement);
-            postContainer.appendChild(videoPlayer);
-            postContainer.appendChild(deleteButton);
-
-            container.insertBefore(postContainer, container.firstChild);
-        }
-
-        function deleteVideo(id) {
-            const videos = JSON.parse(localStorage.getItem('videos')) || [];
-            const updatedVideos = videos.filter(video => video.id !== id);
-            localStorage.setItem('videos', JSON.stringify(updatedVideos));
-        }
-
-        function clearInputs() {
-            document.getElementById('fileInput').value = '';
-            document.getElementById('thumbnailInput').value = '';
-            document.getElementById('titleInput').value = '';
-            document.getElementById('descriptionInput').value = '';
-        }
-
-        function searchVideos() {
-            const searchInput = document.getElementById('searchInput').value.toLowerCase();
-            const videoContainer = document.getElementById('videoContainer');
-            videoContainer.innerHTML = '';
-
-            const videos = JSON.parse(localStorage.getItem('videos')) || [];
-            const filteredVideos = videos.filter(videoPost => {
-                return videoPost.title.toLowerCase().includes(searchInput) ||
-                       videoPost.description.toLowerCase().includes(searchInput);
-            });
-
-            filteredVideos.forEach(videoPost => displayVideo(videoPost, videoContainer));
-        }
-    </script>
+        filteredVideos.forEach(videoPost => displayVideo(videoPost, videoContainer));
+    }
+</script>
 </body>
 </html>
