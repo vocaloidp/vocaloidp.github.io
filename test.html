@@ -58,10 +58,11 @@
 <body>
 <br><br><h1>ボカロの曲をアップロードしよう！</h1>
 <h2>サムネル/動画</h2>
-<label for="files" class="btn"><img id="thumbUploadImage" src="https://th.bing.com/th/id/R.763ac784face5729e9a5274627676d3e?rik=V9UoqLQpq7HLKw&riu=http%3a%2f%2fwww.pngall.com%2fwp-content%2fuploads%2f2%2fUpload-PNG.png&ehk=p9OH7uKYdCDqtmw7B%2f3GbgBjKdDyCUCllqAD6Q5nCxU%3d&risl=&pid=ImgRaw&r=0&adlt=strict"></label><label for="filez" class="btn2"><img id="vidUploadImage" src="https://cdn-icons-png.flaticon.com/512/8314/8314810.png"></label>
-<input type="file" id="files" class="uploadButton" id="thumbnailInput" accept="image/*">
+<label for="files" class="btn"><img id="thumbUploadImage" src="https://th.bing.com/th/id/R.763ac784face5729e9a5274627676d3e?rik=V9UoqLQpq7HLKw&riu=http%3a%2f%2fwww.pngall.com%2fwp-content%2fuploads%2f2%2fUpload-PNG.png&ehk=p9OH7uKYdCDqtmw7B%2f3GbgBjKdDyCUCllqAD6Q5nCxU%3d&risl=&pid=ImgRaw&r=0&adlt=strict"></label>
+<label for="filez" class="btn2"><img id="vidUploadImage" src="https://cdn-icons-png.flaticon.com/512/8314/8314810.png"></label>
+<input type="file" id="files" class="uploadButton" accept="image/*">
 <div id="thumbPreview"></div>
-<input type="file" id="filez" id="fileInput" style="visibility:hidden;" accept="video/mp4">
+<input type="file" id="filez" style="visibility:hidden;" accept="video/mp4">
 <div id="videoPreview"></div>
 <h2>タイトル</h2>
 <input type="text" id="titleInput" placeholder="タイトル">
@@ -108,8 +109,8 @@
     });
 
     function addVideo() {
-        const fileInput = document.getElementById('fileInput');
-        const thumbnailInput = document.getElementById('thumbnailInput');
+        const fileInput = document.getElementById('filez');
+        const thumbnailInput = document.getElementById('files');
         const titleInput = document.getElementById('titleInput');
         const descriptionInput = document.getElementById('descriptionInput');
         const videoContainer = document.getElementById('videoContainer');
@@ -195,8 +196,8 @@
     }
 
     function clearInputs() {
-        document.getElementById('fileInput').value = '';
-        document.getElementById('thumbnailInput').value = '';
+        document.getElementById('filez').value = '';
+        document.getElementById('files').value = '';
         document.getElementById('titleInput').value = '';
         document.getElementById('descriptionInput').value = '';
         document.getElementById('thumbPreview').innerHTML = '';
