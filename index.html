@@ -1,7 +1,8 @@
 <html>
   <body>
-    <input>
+    <input id="myInput">
     <script>
+      const input = document.getElementById('myInput');
       input.addEventListener('keydown', function(event) {
     if (event.key === 'Enter') {
         window.open('https://www.example.com', '_blank', 'width=100%,height=100%');
